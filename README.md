@@ -31,12 +31,9 @@ bench --site <your-site> install-app wordpress_form_apis
 The `after_install` hook will automatically:
 
 1. Create a custom role named **`Gravity Form`** (`is_custom=1`, `desk_access=0`).
-2. Create a non-standard User Type named **`Bot User`** that:
-   - Binds the `Gravity Form` role.
-   - Grants `Read` + `Create` on `CRM Lead`.
-   - Frappe auto-adds `Read` + `Create` + `Write` on `File` for every non-standard User Type.
-   - Blocks every module not used by the declared doctypes — the user cannot reach the rest of the desk even if they log in.
-3. Create a bot user **`wordpress@example.com`** with `user_type = Bot User`, no welcome email, no password. The User Type assignment sets the role automatically.
+2. Add Custom DocPerm entries on `CRM Lead` and `File` granting the role `Read` + `Create`.
+3. Create a bot user **`wordpress@example.com`** as `user_type = Website User` with the `Gravity Form` role, no welcome email, no password. (Frappe auto-sets the user type to `Website User` when no assigned role has `desk_access`; the install hook just declares the same explicitly.)
+4. Add a `User Permission` for the bot scoped `Allow = User, For Value = wordpress@example.com, Apply To All Document Types = 1`. Any list/search query against a doctype that has a `User` link field is constrained to records where the link value equals the bot — closes Frappe's baseline user-enumeration leak across both `frappe.client.get_list` and `frappe.desk.search.search_link`.
 
 All three steps are idempotent — re-running install (or `bench migrate` followed by a re-install) skips anything that already exists.
 
@@ -63,7 +60,7 @@ All three steps are idempotent — re-running install (or `bench migrate` follow
 
 If you want to rename `wordpress@example.com` to something tied to your domain (`wordpress@<your-domain>` etc.), edit the User record after install. The role + permissions stay attached.
 
-The bot user is created with `user_type = Bot User` (a non-standard User Type shipped by this app). It can call whitelisted methods on `CRM Lead` and `File` only; every other module is in `block_modules` so the desk surface is effectively closed even if someone forces a login.
+The bot user is a `Website User` whose only role is `Gravity Form` (`desk_access=0`). The role's Custom DocPerm grants `create` on `CRM Lead` and `File` only (`read=0, write=0, export=0`); nothing else is writable. A `User Permission` constrains the bot to see only itself across any User-link lookup. The bot has no password — the only way it authenticates is via its API token.
 
 ### 3. Configure the WordPress plugin
 
