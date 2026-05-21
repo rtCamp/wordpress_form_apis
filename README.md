@@ -31,7 +31,7 @@ bench --site <your-site> install-app wordpress_form_apis
 The `after_install` hook will automatically:
 
 1. Create a custom role named **`Gravity Form`** (`is_custom=1`, `desk_access=0`).
-2. Add Custom DocPerm entries on `CRM Lead` and `File` granting the role `Read` + `Create`.
+2. Add Custom DocPerm entries on `CRM Lead` and `File` granting the role `Create` only (every other flag, including `read` and `export`, explicitly `0`).
 3. Create a bot user **`wordpress@example.com`** as `user_type = Website User` with the `Gravity Form` role, no welcome email, no password. (Frappe auto-sets the user type to `Website User` when no assigned role has `desk_access`; the install hook just declares the same explicitly.)
 4. Add a `User Permission` for the bot scoped `Allow = User, For Value = wordpress@example.com, Apply To All Document Types = 1`. Any list/search query against a doctype that has a `User` link field is constrained to records where the link value equals the bot — closes Frappe's baseline user-enumeration leak across both `frappe.client.get_list` and `frappe.desk.search.search_link`.
 
