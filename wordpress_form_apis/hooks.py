@@ -8,7 +8,7 @@ app_license = "agpl-3.0"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["crm"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -85,8 +85,7 @@ app_license = "agpl-3.0"
 # Installation
 # ------------
 
-# before_install = "wordpress_form_apis.install.before_install"
-# after_install = "wordpress_form_apis.install.after_install"
+after_install = "wordpress_form_apis.setup.install.after_install"
 
 # Uninstallation
 # ------------
@@ -255,4 +254,3 @@ app_license = "agpl-3.0"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-
