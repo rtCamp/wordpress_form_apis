@@ -28,6 +28,7 @@ def create():
 		return {
 			"status": "success",
 			"message": "Lead created successfully",
+			"lead_name": lead.name,
 		}
 	except Exception as e:
 		frappe.log_error(title="Lead Creation Failed")
