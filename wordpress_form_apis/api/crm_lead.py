@@ -31,7 +31,7 @@ def create():
 			"lead_name": lead.name,
 		}
 	except Exception as e:
-		frappe.log_error(title="Lead Creation Failed")
+		frappe.log_error(title="Lead Creation Failed", message=str(e))
 		return {
 			"status": "error",
 			"message": str(e),
@@ -46,6 +46,11 @@ def upload_lead_file():
 		"file_name": data.get("file_name"),
 		"file_url": data.get("file_url"),
 	}
+
+
+@frappe.whitelist(methods=["GET"])
+def get_lead_sources():
+	return {"lead_sources": frappe.get_all("CRM Lead Source", pluck="name", order_by="name asc")}
 
 
 def _filter_payload(form_dict, doctype):

@@ -12,6 +12,7 @@ The companion WordPress plugin lives at **[rtCamp/gravityforms-erpnextcrm](https
 | `wordpress_form_apis.api.doctype.get_doctype_fields` | Returns the fields of a given doctype (standard + custom). Used by the WP plugin to populate its **Field Values** mapping. |
 | `wordpress_form_apis.api.crm_lead.create` | Creates a `CRM Lead` from POST data. Only keys present in `CRM Lead`'s meta (incl. custom fields) are accepted; the synthetic `attachments` key is parsed as a comma-separated list of file URLs. |
 | `wordpress_form_apis.api.crm_lead.upload_lead_file` | Uploads a private file and returns its URL — to be passed back as part of `attachments` on the `create` call. |
+| `wordpress_form_apis.api.crm_lead.get_lead_sources` | Returns the list of `CRM Lead Source` names — to populate a source dropdown when mapping the `source` field. |
 
 All endpoints require an authenticated request (no `allow_guest`). The plugin signs requests with the bot user's Frappe API token.
 
