@@ -29,6 +29,11 @@ def _ensure_role():
 def _ensure_role_perm(doctype, role):
 	if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0}):
 		return
+	# Clone standard DocPerm rows into Custom DocPerm first — inserting any Custom DocPerm
+	# row otherwise wipes all standard perms for this doctype (see frappe.permissions.get_valid_perms).
+	from frappe.permissions import setup_custom_perms
+
+	setup_custom_perms(doctype)
 	frappe.get_doc(
 		{
 			"doctype": "Custom DocPerm",
