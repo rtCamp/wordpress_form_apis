@@ -1,7 +1,7 @@
 [project]
 name = "wordpress_form_apis"
 authors = [
-    { name = "rtCamp", email = "support@rtcamp.com"}
+    { name = "rtCamp", email = "frappe@rtcamp.com"}
 ]
 description = "Frappe APIs for WordPress form integrations (Gravity Forms, etc.)"
 requires-python = ">=3.14"
