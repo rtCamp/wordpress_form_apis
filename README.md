@@ -2,7 +2,7 @@
 
 Frappe-side endpoints for the Gravity Forms → Frappe CRM integration.
 
-The companion WordPress plugin lives at **[rtCamp/gravityforms-erpnextcrm](https://github.com/rtCamp/gravityforms-erpnextcrm)** — install it on the WordPress site that hosts the forms, point its API base URL at this Frappe site, and use the bot user's API token (see Setup below).
+The companion WordPress plugin lives at **[rtCamp/gravityforms-frappecrm](https://github.com/rtCamp/gravityforms-frappecrm)** — install it on the WordPress site that hosts the forms, point its API base URL at this Frappe site, and use the bot user's API token (see Setup below).
 
 ## What it ships
 
@@ -65,7 +65,7 @@ The bot user is a `Website User` whose only role is `Gravity Form` (`desk_access
 
 ### 3. Configure the WordPress plugin
 
-Install **[gravityforms-erpnextcrm](https://github.com/rtCamp/gravityforms-erpnextcrm)** on your WordPress site, then in **GravityForms → Settings → ERPNext Connect**:
+Install **[rtCamp/gravityforms-frappecrm](https://github.com/rtCamp/gravityforms-frappecrm)** on your WordPress site, then in **GravityForms → Settings → ERPNext Connect**:
 
 | Field | Value |
 |---|---|
