@@ -7,10 +7,27 @@ def create():
 	try:
 		payload = _filter_payload(frappe.form_dict, "CRM Lead")
 		attachments = payload.pop("attachments", None)
+		file_ids = payload.pop("file_ids", None)
 
 		lead = frappe.get_doc({"doctype": "CRM Lead", **payload})
 		lead.save()
 
+		# Files already uploaded via upload_lead_file: relink by id, no duplicate.
+		if file_ids:
+			ids = [fid.strip() for fid in file_ids.split(",") if fid.strip()]
+			existing = frappe.get_list("File", filters={"name": ["in", ids]}, pluck="name")
+			if existing:
+				frappe.db.set_value(
+					"File",
+					{"name": ["in", existing]},
+					{
+						"attached_to_doctype": "CRM Lead",
+						"attached_to_name": lead.name,
+						"is_private": 1,
+					},
+				)
+
+		# External URLs: create new File pointers.
 		if attachments:
 			for attachment_url in attachments.split(","):
 				attachment_url = attachment_url.strip()
@@ -43,6 +60,7 @@ def upload_lead_file():
 	frappe.form_dict.is_private = 1
 	data = upload_file()
 	return {
+		"file_id": data.name,
 		"file_name": data.get("file_name"),
 		"file_url": data.get("file_url"),
 	}
@@ -54,6 +72,7 @@ def get_lead_sources():
 
 
 def _filter_payload(form_dict, doctype):
-	"""Drop keys not declared on the target doctype's meta; pass through 'attachments'."""
+	"""Drop keys not declared on the target doctype's meta; pass through attachment keys."""
 	allowed = {f.fieldname for f in frappe.get_meta(doctype).fields}
-	return {k: v for k, v in form_dict.items() if k in allowed or k == "attachments"}
+	passthrough = {"attachments", "file_ids"}
+	return {k: v for k, v in form_dict.items() if k in allowed or k in passthrough}

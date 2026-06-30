@@ -10,8 +10,8 @@ The companion WordPress plugin lives at **[rtCamp/gravityforms-erpnextcrm](https
 |---|---|
 | `wordpress_form_apis.api.doctype.get_doctype_list` | Returns the list of CRM doctypes that can be targeted (currently `CRM Lead`). Used by the WP plugin to populate its **Document Type** dropdown. |
 | `wordpress_form_apis.api.doctype.get_doctype_fields` | Returns the fields of a given doctype (standard + custom). Used by the WP plugin to populate its **Field Values** mapping. |
-| `wordpress_form_apis.api.crm_lead.create` | Creates a `CRM Lead` from POST data. Only keys present in `CRM Lead`'s meta (incl. custom fields) are accepted; the synthetic `attachments` key is parsed as a comma-separated list of file URLs. |
-| `wordpress_form_apis.api.crm_lead.upload_lead_file` | Uploads a private file and returns its URL — to be passed back as part of `attachments` on the `create` call. |
+| `wordpress_form_apis.api.crm_lead.create` | Creates a `CRM Lead` from POST data. Only keys present in `CRM Lead`'s meta (incl. custom fields) are accepted. Two synthetic keys handle files: `file_ids` — a comma-separated list of `File` names already uploaded via `upload_lead_file`, which are **re-linked** to the new lead (no duplicate); and `attachments` — a comma-separated list of external file URLs, each stored as a **new** `File` record. |
+| `wordpress_form_apis.api.crm_lead.upload_lead_file` | Uploads a private file and returns its `file_id` (plus `file_name` and `file_url`) — pass the `file_id` back under `file_ids` on the `create` call. |
 | `wordpress_form_apis.api.crm_lead.get_lead_sources` | Returns the list of `CRM Lead Source` names — to populate a source dropdown when mapping the `source` field. |
 
 All endpoints require an authenticated request (no `allow_guest`). The plugin signs requests with the bot user's Frappe API token.
@@ -82,7 +82,9 @@ Then for each Gravity Form, **Form Settings → ERPNext Connect → Create Feed*
 | Document Type | `CRM Lead` (the dropdown is populated from this app's discovery endpoint) |
 | Field Values | Map your form fields to `CRM Lead` fields. Anything not present on the doctype's meta will be silently dropped server-side. |
 
-For attachments, the plugin should upload the file first via `…/api/method/wordpress_form_apis.api.crm_lead.upload_lead_file`, then pass the returned URL(s) as a comma-separated value under the `attachments` key in the `create` body.
+For attachments, the plugin should upload each file first via `…/api/method/wordpress_form_apis.api.crm_lead.upload_lead_file`, collect the returned `file_id`s, and pass them as a comma-separated value under the `file_ids` key in the `create` body. Each file is uploaded once and re-linked to the lead — no duplicate `File` records.
+
+The `attachments` key (comma-separated external URLs) is still accepted and creates a new `File` per URL, but **on sites running DFP External Storage these external-URL files are rejected** (DFP won't persist a remote-URL `File`). Prefer the upload-first `file_ids` flow, which stores the bytes through DFP normally.
 
 ## Field allowlist (security note)
 
