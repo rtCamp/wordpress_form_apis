@@ -15,14 +15,15 @@ def create():
 		# Files already uploaded via upload_lead_file: relink the unattached ones by id
 		# (no duplicate). A file id that is already attached elsewhere is not moved;
 		# instead its file_url is queued below to create a new File that shares the
-		# same stored object.
-		if file_ids:
-			ids = [fid.strip() for fid in file_ids.split(",") if fid.strip()]
-			unattached = frappe.get_list(
+		# same stored object. get_list scopes both to files the caller can read.
+		ids = [fid.strip() for fid in (file_ids or "").split(",") if fid.strip()]
+		if ids:
+			rows = frappe.get_list(
 				"File",
-				filters={"name": ["in", ids], "attached_to_name": ["is", "not set"]},
-				pluck="name",
+				filters={"name": ["in", ids]},
+				fields=["name", "attached_to_name", "file_url"],
 			)
+			unattached = [r.name for r in rows if not r.attached_to_name]
 			if unattached:
 				frappe.db.set_value(
 					"File",
@@ -33,8 +34,7 @@ def create():
 						"is_private": 1,
 					},
 				)
-			reuse = [frappe.db.get_value("File", fid, "file_url") for fid in ids if fid not in unattached]
-			reuse = [url for url in reuse if url]
+			reuse = [r.file_url for r in rows if r.attached_to_name and r.file_url]
 			if reuse:
 				attachments = ",".join([attachments, *reuse]) if attachments else ",".join(reuse)
 
