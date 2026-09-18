@@ -1,6 +1,7 @@
 import frappe
 from frappe.handler import upload_file
 
+ALLOWED_ROLES = ["Gravity Form"]
 
 @frappe.whitelist(methods=["POST"])
 def create():
@@ -60,14 +61,17 @@ def create():
 		}
 	except Exception as e:
 		frappe.log_error(title="Lead Creation Failed", message=str(e))
+		frappe.clear_messages()
 		return {
 			"status": "error",
-			"message": str(e),
+			"message": "Lead creation failed. Please try again later.",
 		}
 
 
 @frappe.whitelist(methods=["POST"])
 def upload_lead_file():
+	frappe.only_for(ALLOWED_ROLES)
+
 	frappe.form_dict.is_private = 1
 	data = upload_file()
 	return {
@@ -79,10 +83,12 @@ def upload_lead_file():
 
 @frappe.whitelist(methods=["GET"])
 def get_lead_sources():
+	frappe.only_for(ALLOWED_ROLES)
 	return {"lead_sources": frappe.get_all("CRM Lead Source", pluck="name", order_by="name asc")}
 
 
 def _filter_payload(form_dict, doctype):
+	frappe.only_for(ALLOWED_ROLES)
 	"""Drop keys not declared on the target doctype's meta; pass through attachment keys."""
 	allowed = {f.fieldname for f in frappe.get_meta(doctype).fields}
 	passthrough = {"attachments", "file_ids"}
