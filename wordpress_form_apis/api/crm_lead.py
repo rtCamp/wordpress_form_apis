@@ -89,7 +89,6 @@ def get_lead_sources():
 
 
 def _filter_payload(form_dict, doctype):
-	frappe.only_for(ALLOWED_ROLES)
 	"""Drop keys not declared on the target doctype's meta; pass through attachment keys."""
 	allowed = {f.fieldname for f in frappe.get_meta(doctype).fields}
 	passthrough = {"attachments", "file_ids"}
